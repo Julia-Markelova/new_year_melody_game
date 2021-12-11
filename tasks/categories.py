@@ -1,10 +1,12 @@
+import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 from typing import List
 from typing import Optional
 
-from tasks.task_handlers import handle_a_100
-from tasks.task_handlers import handle_a_200
+from config.paths import MELODIES_PATH
+from tasks.task_handlers import default_handler
 
 
 @dataclass
@@ -20,33 +22,23 @@ class Category:
 
 
 def configure_categories(round: int = 1) -> List[Category]:
-    return [
-        Category(
-            name=f'category A round {round}',
-            tasks=[
-                Task(point_count=100, handler=handle_a_100),
-                Task(point_count=200, handler=handle_a_200)
-            ]
-        ),
-        Category(
-            name=f'category B round {round}',
-            tasks=[
-                Task(point_count=100),
-                Task(point_count=200)
-            ]
-        ),
-        Category(
-            name=f'category C round {round}',
-            tasks=[
-                Task(point_count=100),
-                Task(point_count=200)
-            ]
-        ),
-        Category(
-            name=f'category D round {round}',
-            tasks=[
-                Task(point_count=100),
-                Task(point_count=200)
-            ]
-        ),
-    ]
+
+    path_to_round = Path(f'{MELODIES_PATH}/{round}')
+    if not path_to_round.exists():
+        raise AssertionError(f'Path for round {round} does not exests in {MELODIES_PATH}')
+    categories: List[Category] = []
+    for category_name in os.listdir(path_to_round):
+        tasks: List[Task] = []
+        for task in os.listdir(path_to_round / Path(str(category_name))):
+            tasks.append(
+                Task(point_count=int(str(task)),
+                     handler=default_handler(
+                         round_ind=round, category_name=str(category_name), task_name=str(task)))
+            )
+        categories.append(
+            Category(
+                name=str(category_name),
+                tasks=sorted(tasks, key=lambda t: t.point_count)
+            )
+        )
+    return categories

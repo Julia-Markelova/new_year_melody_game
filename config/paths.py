@@ -1,0 +1,1 @@
+MELODIES_PATH = 'melodies'
