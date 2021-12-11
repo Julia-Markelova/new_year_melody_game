@@ -20,6 +20,7 @@ def default_handler(round_ind: int, category_name: str, task_name: str):
         instance.disabled = True
         popup = _configure_default_popup(round_ind, category_name, task_name)
         popup.open()
+
     return handler
 
 
@@ -60,14 +61,21 @@ def _configure_default_popup(round_ind: int, category_name: str, task_name: str)
             answer_sound.seek(0)
 
     def close_popup(btn: Button):
-        # if question_sound:
-        #     if question_sound.state != 'stop':
-        #         question_sound.stop()
-        #     question_sound.unload()
-        # if answer_sound:
-        #     if answer_sound.state != 'stop':
-        #         answer_sound.stop()
-        #     answer_sound.unload()
+        if question_sound:
+            if question_sound.state != 'stop':
+                question_sound.stop()
+            try:
+                question_sound.unload()
+            except:
+                pass
+
+        if answer_sound:
+            if answer_sound.state != 'stop':
+                answer_sound.stop()
+            try:
+                answer_sound.unload()
+            except:
+                pass
         popup.dismiss()
 
     main_layout = GridLayout()
