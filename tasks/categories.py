@@ -41,4 +41,4 @@ def configure_categories(round: int = 1) -> List[Category]:
                 tasks=sorted(tasks, key=lambda t: t.point_count)
             )
         )
-    return categories
+    return sorted(categories, key=lambda c: c.name)
