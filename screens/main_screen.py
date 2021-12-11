@@ -10,8 +10,8 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 from kivy.utils import escape_markup
 
-from config.style_config import menu_button_style
-from config.style_config import header_style
+from config.styles import menu_button_style
+from config.styles import header_style
 
 
 class MainScreen(Screen):

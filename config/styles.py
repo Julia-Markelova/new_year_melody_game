@@ -1,16 +1,35 @@
 from config import colors
 
-button_color = ()
-background_color = (106, 72, 215, 0.8)
-
 menu_button_style = {
     'font_size': '32sp',
-    'background_color': colors.theme_2_duke_blue,
+    'background_color': colors.theme_2_blue,
     'background_normal': '',
     'color': colors.theme_2_milk,
     'border': colors.theme_2_blue,
 }
 
+round_task_button_style = {
+    'font_size': '50sp',
+    'background_color': colors.theme_2_duke_blue,
+    'background_normal': '',
+    'color': colors.theme_2_milk,
+    'border': colors.theme_2_duke_blue,
+    'background_disabled_normal': '',
+    'disabled_color': colors.theme_2_duke_blue,
+}
+
+
+round_category_button_style = {
+    'font_size': '20sp',
+    'background_color': colors.theme_2_light_blue,
+    'background_normal': '',
+    'color': colors.theme_2_coffee,
+    'border': colors.theme_2_blue,
+    'disabled': True,
+    'background_disabled_normal': '',
+    'disabled_color': colors.theme_1_white,
+    'bold': True,
+}
 
 
 header_style = {

@@ -8,7 +8,11 @@ from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from kivy.utils import escape_markup
 
-from config.style_config import menu_button_style
+from config.styles import header_style
+from config.styles import menu_button_style
+
+from config.styles import round_category_button_style
+from config.styles import round_task_button_style
 from tasks.categories import Category
 
 
@@ -20,10 +24,7 @@ class RoundScreen(Screen):
         box_layout = BoxLayout(orientation='vertical')
         box_layout.padding = 10
         box_layout.spacing = 10
-        title = Label(text='[b][color=black]' + self.name + '[/color][/b]',
-                      markup=True,
-                      font_size='20sp',
-                      size_hint=(1, 0.1), size=(100, 30),)
+        title = Label(text=self.name, **header_style, size_hint=(1, 0.1), size=(100, 30),)
         close_btn = Button(text='Завершить раунд', **menu_button_style, size_hint=(1, 0.1), size=(100, 30), )
         close_btn.bind(on_press=self.finish_round)
         layout = GridLayout()
@@ -53,18 +54,9 @@ class RoundScreen(Screen):
         layout.rows = len(self.categories)
 
         for category in self.categories:
-            layout.add_widget(Button(text='[b][color=black]' + escape_markup(category.name) + '[/color][/b]',
-                                     markup=True,
-                                     font_size='20sp',
-                                     disabled=True,
-                                     background_color=(1, 0.02, 1, 1),
-                                     )
-                              )
+            layout.add_widget(Button(text=category.name, **round_category_button_style))
 
             for task in category.tasks:
-                button = Button(text=str(task.point_count),
-                                font_size='50sp',
-                                background_color=(0.02, 0.02, 1, 1),
-                                )
+                button = Button(text=str(task.point_count), **round_task_button_style)
                 button.bind(on_press=self.on_btn_pressed if task.handler is None else task.handler)
                 layout.add_widget(button)

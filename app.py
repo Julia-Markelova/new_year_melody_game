@@ -121,5 +121,5 @@ class MyApp(App):
 
 
 if __name__ == '__main__':
-    Window.clearcolor = colors.theme_2_milk
+    Window.clearcolor = colors.theme_1_white
     MyApp().run()
