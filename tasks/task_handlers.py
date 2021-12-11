@@ -17,14 +17,13 @@ ANSWER_NAME = 'answer.mp3'
 
 def default_handler(round_ind: int, category_name: str, task_name: str):
     def handler(instance: Button):
-        instance.disabled = True
-        popup = _configure_default_popup(round_ind, category_name, task_name)
+        popup = _configure_default_popup(round_ind, category_name, task_name, instance)
         popup.open()
 
     return handler
 
 
-def _configure_default_popup(round_ind: int, category_name: str, task_name: str) -> Popup:
+def _configure_default_popup(round_ind: int, category_name: str, task_name: str, instance: Button) -> Popup:
     round_name = f'Раунд {round_ind}'
     path_to_question = f'{MELODIES_PATH}/{round_ind}/{category_name}/{task_name}/{QUESTION_NAME}'
     path_to_answer = f'{MELODIES_PATH}/{round_ind}/{category_name}/{task_name}/{ANSWER_NAME}'
@@ -64,19 +63,17 @@ def _configure_default_popup(round_ind: int, category_name: str, task_name: str)
         if question_sound:
             if question_sound.state != 'stop':
                 question_sound.stop()
-            try:
-                question_sound.unload()
-            except:
-                pass
+            # question_sound.unload()
 
         if answer_sound:
             if answer_sound.state != 'stop':
                 answer_sound.stop()
-            try:
-                answer_sound.unload()
-            except:
-                pass
+            # answer_sound.unload()
+
         popup.dismiss()
+
+    def add_rating(btn: Button):
+        instance.disabled = True
 
     main_layout = GridLayout()
     main_layout.rows = 2
@@ -95,6 +92,7 @@ def _configure_default_popup(round_ind: int, category_name: str, task_name: str)
     answer_player = Button(text='Прослушать ответ', **melody_button_style)
     stopper = Button(text='Остановить воспроизведение', **melody_button_style)
     reset = Button(text='Перемотать мелодию в начало', **melody_button_style)
+    rating = Button(text='Засчитать рейтинг', **melody_button_style)
     exit_btn = Button(text='Закрыть', **menu_button_style)
 
     question_player.bind(on_press=lambda x: play_sound(question_sound, x))
@@ -102,11 +100,13 @@ def _configure_default_popup(round_ind: int, category_name: str, task_name: str)
     stopper.bind(on_press=stop_sound)
     exit_btn.bind(on_press=close_popup)
     reset.bind(on_press=reset_melody)
+    rating.bind(on_press=add_rating)
 
     layout.add_widget(question_player)
     layout.add_widget(stopper)
     layout.add_widget(reset)
     layout.add_widget(answer_player)
+    layout.add_widget(rating)
     layout.add_widget(exit_btn)
 
     main_layout.add_widget(layout)
