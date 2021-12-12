@@ -17,6 +17,27 @@ round_task_button_style = {
     'disabled_color': colors.theme_2_duke_blue,
 }
 
+total_rating_button_style = {
+    'font_size': '50sp',
+    'background_color': colors.theme_2_duke_blue,
+    'background_normal': '',
+    'color': colors.theme_2_milk,
+    'border': colors.theme_2_duke_blue,
+    'background_disabled_normal': '',
+}
+
+rating_button_style = {
+    'font_size': '20sp',
+    'background_color': colors.theme_2_milk,
+    'background_normal': '',
+    'color': colors.theme_2_coffee,
+    'border': colors.theme_2_coffee,
+    'disabled': True,
+    'background_disabled_normal': '',
+    'disabled_color': colors.theme_2_milk,
+    'bold': True,
+}
+
 round_category_button_style = {
     'font_size': '20sp',
     'background_color': colors.theme_2_light_blue,

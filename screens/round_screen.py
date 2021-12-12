@@ -32,7 +32,7 @@ class RoundScreen(Screen):
         box_layout.padding = 10
         box_layout.spacing = 10
         title = Label(text=self.name, **header_style, size_hint=(1, 0.1), size=(100, 30), )
-        close_btn = Button(text='Завершить раунд', **menu_button_style, size_hint=(1, 0.1), size=(100, 30), )
+        close_btn = Button(text='В главное меню', **menu_button_style, size_hint=(1, 0.1), size=(100, 30), )
         close_btn.bind(on_press=self.close_round_screen)
 
         layout = GridLayout()
@@ -145,7 +145,7 @@ class RoundScreen(Screen):
         stopper.bind(on_press=stop_sound)
         exit_btn.bind(on_press=close_popup)
         reset.bind(on_press=reset_melody)
-        rating_btn.bind(on_press=lambda x: self._teams_popup(task.point_count, x))
+        rating_btn.bind(on_press=lambda x: self._teams_popup(task.point_count, instance, x))
 
         layout.add_widget(question_player)
         layout.add_widget(stopper)
@@ -157,22 +157,34 @@ class RoundScreen(Screen):
         main_layout.add_widget(layout)
         return popup
 
-    def _teams_popup(self, point_count: int, instance: Button):
-        instance.disabled = True
+    def _teams_popup(self, point_count: int, task_btn: Button, instance: Button):
+        main_layout = GridLayout()
+        main_layout.rows = 2
+        main_layout.spacing = 10
+        main_layout.padding = 10
         layout = BoxLayout(orientation='vertical')
-        popup = Popup(content=layout, auto_dismiss=False, title=f'Выбор команды для начисления рейтинга')
+        popup = Popup(content=main_layout, auto_dismiss=False, title=f'Выбор команды для начисления рейтинга')
+
         layout.spacing = 10
-        layout.padding = [20, 10]
+        layout.padding = [30, 30]
+        label = Label(text=f'Укажите команду для начисления очков', **milk_header_style,)
+        main_layout.add_widget(label)
 
-        def _add_rating(team: str, instance: Button):
+        def _add_rating(btn: Button):
             instance.disabled = True
-            self.manager.rating[team][self.round.get_name()] = point_count
+            task_btn.disabled = True
+            self.manager.rating[btn.text][self.round.get_name()] = point_count
+            for btn in buttons:
+                btn.disabled = True
 
+        buttons = []
         for team in self.manager.teams:
             button = Button(text=team, **melody_button_style)
-            button.bind(on_press=lambda x: _add_rating(team, x))
+            button.bind(on_press=_add_rating)
+            buttons.append(button)
             layout.add_widget(button)
         exit_btn = Button(text='Закрыть', **menu_button_style)
         layout.add_widget(exit_btn)
+        main_layout.add_widget(layout)
         exit_btn.bind(on_press=popup.dismiss)
         popup.open()

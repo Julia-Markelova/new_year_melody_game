@@ -12,6 +12,9 @@ from config.styles import header_style
 from config.styles import melody_button_style
 from config.styles import menu_button_style
 from config.styles import milk_header_style_20_sp
+from config.styles import rating_button_style
+from config.styles import total_rating_button_style
+from config.styles import round_category_button_style
 
 
 class MainScreen(Screen):
@@ -126,41 +129,32 @@ class MainScreen(Screen):
 
     def show_rating(self, btn: Button):
         self._init_teams()
+        main_layout = BoxLayout(orientation='vertical')
         rating_layout = GridLayout()
         rating_layout.spacing = 10
         rating_layout.padding = 10
         rating_layout.cols = 5
         # fill header
-        rating_layout.add_widget(Button(**menu_button_style, disabled=True))
-        rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Раунд I'))
-        rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Раунд II'))
-        rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Раунд III'))
-        rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Итого'))
-        commands = sorted(list(self.manager.teams))
-        winner_command, max_sum = None, 0
-        for c in commands:
-            c_total_rating = self._count_total_rating(c)
-            if c_total_rating > max_sum:
-                winner_command = c
-                max_sum = c_total_rating
-        winner_color = (1, 1, 0, 1)
+        rating_layout.add_widget(Button(**round_category_button_style, text='Команда/Раунд'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Раунд I'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Раунд II'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Раунд III'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Итого'))
+        commands = list(sorted(self.manager.rating, key=lambda x: self._count_total_rating(x), reverse=True))
+
         for command in commands:
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=command))
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.manager.rating[command]['Раунд I'])))
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.manager.rating[command]['Раунд II'])))
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.manager.rating[command]['Раунд III'])))
-            if command == winner_command:
-                rating_layout.add_widget(Button(**{
-                    'font_size': '28sp',
-                    'background_color': winner_color
-                }, disabled=True, text=str(max_sum)))
-            else:
-                rating_layout.add_widget(
-                    Button(**menu_button_style, disabled=True, text=str(self._count_total_rating(command))))
-        close_button = Button(text='Закрыть', **menu_button_style, size_hint=(1, 0.2), size=(100, 30), )
-        popup = Popup(title='Команды', content=rating_layout, auto_dismiss=False)
+            rating_layout.add_widget(Button(**round_category_button_style, text=command))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(self.manager.rating[command]['Раунд I'])))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(self.manager.rating[command]['Раунд II'])))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(self.manager.rating[command]['Раунд III'])))
+
+            rating_layout.add_widget(
+                    Button(**total_rating_button_style, disabled=True, text=str(self._count_total_rating(command))))
+        close_button = Button(text='Закрыть', **menu_button_style, size_hint=(1, 0.1), size=(100, 20), )
+        popup = Popup(title='Команды', content=main_layout, auto_dismiss=False)
         close_button.bind(on_press=popup.dismiss)
-        rating_layout.add_widget(close_button)
+        main_layout.add_widget(rating_layout)
+        main_layout.add_widget(close_button)
         popup.open()
 
     def _count_total_rating(self, command: str) -> int:
@@ -173,7 +167,6 @@ class MainScreen(Screen):
             'Раунд II': 0,
             'Раунд III': 0,
         } for team in self.manager.teams}
-        # self.manager.rating = self.rating
 
     def _init_teams(self):
         if not hasattr(self.manager, 'teams') or self.manager.teams is None:
