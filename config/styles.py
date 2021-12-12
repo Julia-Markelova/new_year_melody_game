@@ -5,7 +5,6 @@ menu_button_style = {
     'background_color': colors.theme_2_blue,
     'background_normal': '',
     'color': colors.theme_2_milk,
-    'border': colors.theme_2_blue,
 }
 
 round_task_button_style = {
@@ -18,7 +17,6 @@ round_task_button_style = {
     'disabled_color': colors.theme_2_duke_blue,
 }
 
-
 round_category_button_style = {
     'font_size': '20sp',
     'background_color': colors.theme_2_light_blue,
@@ -30,7 +28,6 @@ round_category_button_style = {
     'disabled_color': colors.theme_1_white,
     'bold': True,
 }
-
 
 header_style = {
     'font_size': '42sp',
@@ -48,6 +45,13 @@ milk_header_style = {
     'valign': 'center',
 }
 
+milk_header_style_20_sp = {
+    'font_size': '20sp',
+    'color': colors.theme_2_milk,
+    'bold': True,
+    'halign': 'center',
+    'valign': 'center',
+}
 
 melody_button_style = {
     'font_size': '32sp',

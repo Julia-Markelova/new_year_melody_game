@@ -1,4 +1,3 @@
-from typing import Dict
 from typing import List
 
 from kivy.uix.boxlayout import BoxLayout
@@ -8,18 +7,22 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
-from kivy.utils import escape_markup
 
-from config.styles import menu_button_style
 from config.styles import header_style
+from config.styles import melody_button_style
+from config.styles import menu_button_style
+from config.styles import milk_header_style_20_sp
 
 
 class MainScreen(Screen):
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
-        self.rounds = 3
-        self.teams = set()
-        self.rating: Dict[str, Dict[str, int]] = {}
+        self.users_btn = Button(text='Команды', **menu_button_style)
+        self.rules_btn = Button(text='Правила игры', **menu_button_style)
+        self.round1_btn = Button(text='Раунд I', **menu_button_style, disabled=True)
+        self.round2_btn = Button(text='Раунд II', **menu_button_style, disabled=True)
+        self.round3_btn = Button(text='Раунд III', **menu_button_style, disabled=True)
+        self.rating_btn = Button(text='Рейтинг', **menu_button_style, disabled=True)
         self.main_screen()
 
     def main_screen(self):
@@ -31,45 +34,44 @@ class MainScreen(Screen):
         box_layout = BoxLayout(orientation='vertical')
         box_layout.spacing = 5
         box_layout.padding = 10
-        users = Button(text='Команды', **menu_button_style)
-        rules = Button(text='Правила игры', **menu_button_style)
-        round1 = Button(text='Раунд I', **menu_button_style)
-        round2 = Button(text='Раунд II', **menu_button_style)
-        round3 = Button(text='Раунд III', **menu_button_style)
-        rating = Button(text='Рейтинг', **menu_button_style)
-        users.bind(on_press=self.show_users)
-        rules.bind(on_press=self.show_rules)
-        round1.bind(on_press=self.play_round)
-        round2.bind(on_press=self.play_round)
-        round3.bind(on_press=self.play_round)
-        rating.bind(on_press=self.show_rating)
-        box_layout.add_widget(users)
-        box_layout.add_widget(rules)
-        box_layout.add_widget(round1)
-        box_layout.add_widget(round2)
-        box_layout.add_widget(round3)
-        box_layout.add_widget(rating)
+        self.users_btn.bind(on_press=self.show_users)
+        self.rules_btn.bind(on_press=self.show_rules)
+        self.round1_btn.bind(on_press=self.play_round)
+        self.round2_btn.bind(on_press=self.play_round)
+        self.round3_btn.bind(on_press=self.play_round)
+        self.rating_btn.bind(on_press=self.show_rating)
+        box_layout.add_widget(self.users_btn)
+        box_layout.add_widget(self.rules_btn)
+        box_layout.add_widget(self.round1_btn)
+        box_layout.add_widget(self.round2_btn)
+        box_layout.add_widget(self.round3_btn)
+        box_layout.add_widget(self.rating_btn)
         layout.add_widget(box_layout)
         self.add_widget(layout)
 
     def show_users(self, instance: Button):
+        self._init_teams()
         def save_commands(instance: Button):
-            self.teams.clear()
+            self.manager.teams.clear()
             for text in inputs:
-                text.disabled = True
                 if text.text is not None and text.text != '':
-                    self.teams.add(text.text)
+                    text.disabled = True
+                    self.manager.teams.add(text.text)
+                    self.round1_btn.disabled = False
+                    self.round2_btn.disabled = False
+                    self.round3_btn.disabled = False
+                    self.rating_btn.disabled = False
             self._init_rating()
 
         main_layout = BoxLayout(orientation='vertical')
         main_layout.spacing = 10
         main_layout.padding = 10
-        label = Label(text='Задайте названия команд: \n'
+        label = Label(text='Задайте названия команд: \n\n'
                            '    -максимальное количество команд = 4; \n'
                            '    -для сохранения названия нажмите "Сохранить"; \n'
                            '    -если у Вас число команд меньше 4, то оставьте остальные поля пустыми.',
+                      **milk_header_style_20_sp,
                       size_hint=(1, 0.2),
-                      font_size='20sp',
                       size=(100, 30), )
 
         teams_layout = GridLayout()
@@ -78,7 +80,7 @@ class MainScreen(Screen):
         teams_layout.spacing = 10
         teams_layout.padding = 20
         inputs: List[TextInput] = []
-        teams = list(self.teams)
+        teams = list(self.manager.teams)
         disabled = len(teams) > 0
         for i in range(teams_layout.rows - 1):
             try:
@@ -96,7 +98,7 @@ class MainScreen(Screen):
             )
             inputs.append(text_input)
             teams_layout.add_widget(text_input)
-        save_button = Button(text='Сохранить', **menu_button_style, size_hint=(1, 0.3), size=(100, 30), disabled=disabled)
+        save_button = Button(text='Сохранить', **melody_button_style, size_hint=(1, 0.2), size=(100, 20), disabled=disabled)
         save_button.bind(on_press=save_commands)
         teams_layout.add_widget(save_button)
 
@@ -123,6 +125,7 @@ class MainScreen(Screen):
         self.manager.current = btn.text
 
     def show_rating(self, btn: Button):
+        self._init_teams()
         rating_layout = GridLayout()
         rating_layout.spacing = 10
         rating_layout.padding = 10
@@ -133,7 +136,7 @@ class MainScreen(Screen):
         rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Раунд II'))
         rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Раунд III'))
         rating_layout.add_widget(Button(**menu_button_style, disabled=True, text='Итого'))
-        commands = sorted(list(self.teams))
+        commands = sorted(list(self.manager.teams))
         winner_command, max_sum = None, 0
         for c in commands:
             c_total_rating = self._count_total_rating(c)
@@ -143,9 +146,9 @@ class MainScreen(Screen):
         winner_color = (1, 1, 0, 1)
         for command in commands:
             rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=command))
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.rating[command]['Раунд I'])))
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.rating[command]['Раунд II'])))
-            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.rating[command]['Раунд III'])))
+            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.manager.rating[command]['Раунд I'])))
+            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.manager.rating[command]['Раунд II'])))
+            rating_layout.add_widget(Button(**menu_button_style, disabled=True, text=str(self.manager.rating[command]['Раунд III'])))
             if command == winner_command:
                 rating_layout.add_widget(Button(**{
                     'font_size': '28sp',
@@ -161,12 +164,17 @@ class MainScreen(Screen):
         popup.open()
 
     def _count_total_rating(self, command: str) -> int:
-        rounds = self.rating[command]
+        rounds = self.manager.rating[command]
         return sum([rounds[value] for value in rounds])
 
     def _init_rating(self):
-        self.rating = {team: {
+        self.manager.rating = {team: {
             'Раунд I': 0,
             'Раунд II': 0,
             'Раунд III': 0,
-        } for team in self.teams}
+        } for team in self.manager.teams}
+        # self.manager.rating = self.rating
+
+    def _init_teams(self):
+        if not hasattr(self.manager, 'teams') or self.manager.teams is None:
+            self.manager.teams = set()
