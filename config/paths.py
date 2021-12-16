@@ -1,1 +1,1 @@
-MELODIES_PATH = 'melodies'
+MELODIES_PATH = '/home/yulia/Рабочий стол/нг'
