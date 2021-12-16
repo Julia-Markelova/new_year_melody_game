@@ -1,6 +1,7 @@
 from typing import List
 
 from kivy.app import App
+from kivy.config import Config
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager
 
@@ -9,6 +10,8 @@ from screens.main_screen import MainScreen
 from screens.round_screen import RoundScreen
 from tasks.categories import Round
 from tasks.categories import configure_rounds
+
+Config.set('kivy', 'exit_on_escape', '0')
 
 
 class MyApp(App):
