@@ -63,7 +63,9 @@ class RoundScreen(Screen):
 
     def _configure_default_popup(self, task: Task, instance: Button) -> Popup:
         question_sound: Sound = SoundLoader.load(task.path_to_question)
-        answer_sound: Sound = SoundLoader.load(task.path_to_answer)
+        answer_sound = None
+        if task.path_to_answer is not None:
+            answer_sound = SoundLoader.load(task.path_to_answer)
 
         def play_sound(sound: Sound, btn: Button):
             if sound:
@@ -107,18 +109,6 @@ class RoundScreen(Screen):
 
             popup.dismiss()
 
-        def add_rating(btn: Button):
-            instance.disabled = True
-            if self.manager.rating is None:
-                raise AssertionError('kek')
-            elif len(self.manager.rating) == 0:
-                self.manager.teams = set()
-                self.manager.teams.add('unknown')
-                self.manager.rating = {'unknown': {self.round.get_name(): task.point_count}}
-                # raise AssertionError
-            else:
-                raise AssertionError
-
         main_layout = GridLayout()
         main_layout.rows = 2
         main_layout.spacing = 10
@@ -134,7 +124,7 @@ class RoundScreen(Screen):
         layout.padding = [20, 10]
 
         question_player = Button(text='Прослушать вопрос', **melody_button_style)
-        answer_player = Button(text='Прослушать ответ', **melody_button_style)
+        answer_player = Button(text='Прослушать ответ', **melody_button_style, disabled=task.path_to_answer is None)
         stopper = Button(text='Остановить воспроизведение', **melody_button_style)
         reset = Button(text='Перемотать мелодию в начало', **melody_button_style)
         rating_btn = Button(text='Засчитать рейтинг', **melody_button_style)
@@ -173,7 +163,8 @@ class RoundScreen(Screen):
         def _add_rating(btn: Button):
             instance.disabled = True
             task_btn.disabled = True
-            self.manager.rating[btn.text][self.round.get_name()] = point_count
+            if self.manager.rating.get(btn.text, None) is not None:
+                self.manager.rating[btn.text][self.round.get_name()] = point_count
             for btn in buttons:
                 btn.disabled = True
 
@@ -183,6 +174,10 @@ class RoundScreen(Screen):
             button.bind(on_press=_add_rating)
             buttons.append(button)
             layout.add_widget(button)
+        fake_team = Button(text='Не засчитывать никому', **melody_button_style)
+        fake_team.bind(on_press=_add_rating)
+        buttons.append(fake_team)
+        layout.add_widget(fake_team)
         exit_btn = Button(text='Закрыть', **menu_button_style)
         layout.add_widget(exit_btn)
         main_layout.add_widget(layout)

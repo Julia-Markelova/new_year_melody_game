@@ -54,12 +54,15 @@ def configure_rounds() -> List[Round]:
             tasks: List[Task] = []
             for task in os.listdir(path_to_round / Path(str(round_path)) / Path(str(category_name))):
                 path_to_task = path_to_round / Path(str(round_path)) / Path(str(category_name)) / Path(str(task))
+                path_to_answer = path_to_task / Path(ANSWER_NAME)
+                if not path_to_answer.exists():
+                    path_to_answer = None
                 tasks.append(
                     Task(
                         point_count=int(str(task)),
                         category_name=category_name,
                         path_to_question=str(path_to_task / Path(QUESTION_NAME)),
-                        path_to_answer=str(path_to_task / Path(ANSWER_NAME)),
+                        path_to_answer=path_to_answer,
                         answer='',
                     )
                 )
