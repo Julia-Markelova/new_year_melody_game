@@ -109,6 +109,10 @@ class RoundScreen(Screen):
 
             popup.dismiss()
 
+        def show_answer(btn: Button):
+            popup = Popup(content=Label(text=task.answer, **milk_header_style), auto_dismiss=True, title=f'Ответ')
+            popup.open()
+
         main_layout = GridLayout()
         main_layout.rows = 2
         main_layout.spacing = 10
@@ -127,6 +131,7 @@ class RoundScreen(Screen):
         answer_player = Button(text='Прослушать ответ', **melody_button_style, disabled=task.path_to_answer is None)
         stopper = Button(text='Остановить воспроизведение', **melody_button_style)
         reset = Button(text='Перемотать мелодию в начало', **melody_button_style)
+        answer = Button(text='Показать ответ', **melody_button_style)
         rating_btn = Button(text='Засчитать рейтинг', **melody_button_style)
         exit_btn = Button(text='Закрыть', **menu_button_style)
 
@@ -134,6 +139,7 @@ class RoundScreen(Screen):
         answer_player.bind(on_press=lambda x: play_sound(answer_sound, x))
         stopper.bind(on_press=stop_sound)
         exit_btn.bind(on_press=close_popup)
+        answer.bind(on_press=show_answer)
         reset.bind(on_press=reset_melody)
         rating_btn.bind(on_press=lambda x: self._teams_popup(task.point_count, instance, x))
 
@@ -141,6 +147,7 @@ class RoundScreen(Screen):
         layout.add_widget(stopper)
         layout.add_widget(reset)
         layout.add_widget(answer_player)
+        layout.add_widget(answer)
         layout.add_widget(rating_btn)
         layout.add_widget(exit_btn)
 

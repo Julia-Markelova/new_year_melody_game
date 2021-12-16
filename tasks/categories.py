@@ -7,6 +7,7 @@ from config.paths import MELODIES_PATH
 
 QUESTION_NAME = 'question.mp3'
 ANSWER_NAME = 'answer.mp3'
+ANSWER_TEXT = 'answer.txt'
 
 
 @dataclass
@@ -57,13 +58,15 @@ def configure_rounds() -> List[Round]:
                 path_to_answer = path_to_task / Path(ANSWER_NAME)
                 if not path_to_answer.exists():
                     path_to_answer = None
+                with open(path_to_task / Path(ANSWER_TEXT), 'r') as file:
+                    answer = file.read()
                 tasks.append(
                     Task(
                         point_count=int(str(task)),
                         category_name=category_name,
                         path_to_question=str(path_to_task / Path(QUESTION_NAME)),
-                        path_to_answer=path_to_answer,
-                        answer='',
+                        path_to_answer=str(path_to_answer) if path_to_answer else None,
+                        answer=answer,
                     )
                 )
             categories.append(
