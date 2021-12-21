@@ -1,0 +1,4 @@
+Kivy==2.0.0
+Kivy-examples==2.0.0
+Kivy-Garden==0.1.4
+python-vlc==3.0.12118
