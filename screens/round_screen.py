@@ -163,14 +163,16 @@ class RoundScreen(Screen):
 
         layout.spacing = 10
         layout.padding = [30, 30]
-        label = Label(text=f'Укажите команду для начисления очков', **milk_header_style,)
+        label = Label(text=f'Укажите команду для начисления очков', **milk_header_style, )
         main_layout.add_widget(label)
 
         def _add_rating(btn: Button):
             instance.disabled = True
             task_btn.disabled = True
             if self.manager.rating.get(btn.text, None) is not None:
-                self.manager.rating[btn.text][self.round.get_name()] = point_count
+                if self.manager.rating[btn.text].get(self.round.get_name()) is None:
+                    self.manager.rating[btn.text][self.round.get_name()] = 0
+                self.manager.rating[btn.text][self.round.get_name()] += point_count
             for btn in buttons:
                 btn.disabled = True
 
