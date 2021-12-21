@@ -14,7 +14,7 @@ from tasks.categories import configure_rounds
 Config.set('kivy', 'exit_on_escape', '0')
 
 
-class MyApp(App):
+class NewYearGameApp(App):
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.rating = {}
@@ -31,4 +31,4 @@ class MyApp(App):
 
 if __name__ == '__main__':
     Window.clearcolor = colors.theme_1_white
-    MyApp().run()
+    NewYearGameApp().run()
