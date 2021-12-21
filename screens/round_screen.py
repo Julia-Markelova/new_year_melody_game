@@ -1,5 +1,4 @@
-from kivy.core.audio import Sound
-from kivy.core.audio import SoundLoader
+import vlc
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -62,12 +61,14 @@ class RoundScreen(Screen):
         return handler
 
     def _configure_default_popup(self, task: Task, instance: Button) -> Popup:
-        question_sound: Sound = SoundLoader.load(task.path_to_question)
+        question_sound: vlc.MediaPlayer = vlc.MediaPlayer(task.path_to_question)
+        # question_sound: Sound = SoundLoader.load(task.path_to_question)
         answer_sound = None
         if task.path_to_answer is not None:
-            answer_sound = SoundLoader.load(task.path_to_answer)
+            answer_sound: vlc.MediaPlayer = vlc.MediaPlayer(task.path_to_answer)
+            # answer_sound = SoundLoader.load(task.path_to_answer)
 
-        def play_sound(sound: Sound, btn: Button):
+        def play_sound(sound: vlc.MediaPlayer, btn: Button):
             if sound:
                 answer_player.disabled = True
                 question_player.disabled = True
@@ -75,37 +76,35 @@ class RoundScreen(Screen):
                 sound.play()
 
         def stop_sound(btn: Button):
-            if question_sound:
+            if question_sound and question_sound.can_pause():
                 btn.disabled = True
                 question_player.disabled = False
-                question_sound.stop()
-            if answer_sound:
+                question_sound.pause()
+            if answer_sound and question_sound.can_pause():
                 btn.disabled = True
                 answer_player.disabled = False
-                answer_sound.stop()
+                answer_sound.pause()
 
         def reset_melody(btn: Button):
             if question_sound:
-                if question_sound.state != 'play':
+                if question_sound.get_state() != vlc.State.Playing:
                     question_player.disabled = False
                 stopper.disabled = False
-                question_sound.seek(0)
+                question_sound.set_position(0)
             if answer_sound:
-                if answer_sound.state != 'play':
+                if answer_sound.get_state() != vlc.State.Playing:
                     answer_player.disabled = False
                 stopper.disabled = False
-                answer_sound.seek(0)
+                answer_sound.set_position(0)
 
         def close_popup(btn: Button):
             if question_sound:
-                if question_sound.state != 'stop':
+                if question_sound.get_state() != vlc.State.Stopped:
                     question_sound.stop()
-                # question_sound.unload() todo
 
             if answer_sound:
-                if answer_sound.state != 'stop':
+                if answer_sound.get_state != vlc.State.Stopped:
                     answer_sound.stop()
-                # answer_sound.unload() todo
 
             popup.dismiss()
 
