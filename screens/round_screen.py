@@ -1,3 +1,5 @@
+from threading import Thread
+
 import vlc
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -12,6 +14,7 @@ from config.styles import menu_button_style
 from config.styles import milk_header_style
 from config.styles import round_category_button_style
 from config.styles import round_task_button_style
+from tasks.button_holder import BtnManager
 from tasks.categories import Round
 from tasks.categories import Task
 
@@ -71,6 +74,9 @@ class RoundScreen(Screen):
                 answer_player.disabled = True
                 question_player.disabled = True
                 stopper.disabled = False
+                btn_manager.start()
+                t = Thread(target=btn_manager.manage_buttons, daemon=True)
+                t.start()
                 sound.play()
 
         def stop_sound(btn: Button):
@@ -103,7 +109,7 @@ class RoundScreen(Screen):
             if answer_sound:
                 if answer_sound.get_state != vlc.State.Stopped:
                     answer_sound.stop()
-
+            btn_manager.stop()
             popup.dismiss()
 
         def show_answer(btn: Button):
@@ -149,6 +155,8 @@ class RoundScreen(Screen):
         layout.add_widget(exit_btn)
 
         main_layout.add_widget(layout)
+
+        btn_manager = self._create_button_manager(answer_sound, question_sound, instance, task, question_player)
         return popup
 
     def _teams_popup(self, point_count: int, task_btn: Button, instance: Button):
@@ -189,3 +197,16 @@ class RoundScreen(Screen):
         main_layout.add_widget(layout)
         exit_btn.bind(on_press=popup.dismiss)
         popup.open()
+
+    def _create_button_manager(self, answer_sound, question_sound, task_btn, task, question_player):
+        btn_manager = BtnManager(
+            answer_sound,
+            question_sound,
+            task,
+            self.manager.rating,
+            self.round.get_name(),
+            self.manager.button_number_to_command_name_mapping,
+            task_btn,
+            question_player
+        )
+        return btn_manager
