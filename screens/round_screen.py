@@ -62,11 +62,9 @@ class RoundScreen(Screen):
 
     def _configure_default_popup(self, task: Task, instance: Button) -> Popup:
         question_sound: vlc.MediaPlayer = vlc.MediaPlayer(task.path_to_question)
-        # question_sound: Sound = SoundLoader.load(task.path_to_question)
         answer_sound = None
         if task.path_to_answer is not None:
-            answer_sound: vlc.MediaPlayer = vlc.MediaPlayer(task.path_to_answer)
-            # answer_sound = SoundLoader.load(task.path_to_answer)
+            answer_sound = vlc.MediaPlayer(task.path_to_answer)
 
         def play_sound(sound: vlc.MediaPlayer, btn: Button):
             if sound:
@@ -76,12 +74,12 @@ class RoundScreen(Screen):
                 sound.play()
 
         def stop_sound(btn: Button):
-            if question_sound and question_sound.can_pause():
-                btn.disabled = True
+            if question_sound and question_sound.can_pause() and question_sound.get_state() == vlc.State.Playing:
+                # btn.disabled = True
                 question_player.disabled = False
                 question_sound.pause()
-            if answer_sound and question_sound.can_pause():
-                btn.disabled = True
+            if answer_sound and answer_sound.can_pause() and answer_sound.get_state() == vlc.State.Playing:
+                # btn.disabled = True
                 answer_player.disabled = False
                 answer_sound.pause()
 
@@ -117,7 +115,7 @@ class RoundScreen(Screen):
         main_layout.spacing = 10
         main_layout.padding = 10
 
-        label = Label(text=f'{self.round.get_name()}\n{task.category_name}\nКоличество очков : {task.point_count}',
+        label = Label(text=f'{self.round.get_name()}\nКатегория "{task.category_name}"\nКоличество очков : {task.point_count}',
                       **milk_header_style)
         main_layout.add_widget(label)
         popup = Popup(content=main_layout, auto_dismiss=False, title=f'Вопрос')
