@@ -1,4 +1,5 @@
 from threading import Thread
+from time import sleep
 
 import vlc
 from kivy.uix.boxlayout import BoxLayout
@@ -59,6 +60,7 @@ class RoundScreen(Screen):
     def _default_task_handler(self, task: Task):
         def handler(instance: Button):
             popup = self._configure_default_popup(task, instance)
+            sleep(0.05)
             popup.open()
 
         return handler
@@ -73,7 +75,6 @@ class RoundScreen(Screen):
             if sound:
                 answer_player.disabled = True
                 question_player.disabled = True
-                stopper.disabled = False
                 btn_manager.start()
                 t = Thread(target=btn_manager.manage_buttons, daemon=True)
                 t.start()
@@ -81,24 +82,22 @@ class RoundScreen(Screen):
 
         def stop_sound(btn: Button):
             if question_sound and question_sound.can_pause() and question_sound.get_state() == vlc.State.Playing:
-                # btn.disabled = True
                 question_player.disabled = False
                 question_sound.pause()
             if answer_sound and answer_sound.can_pause() and answer_sound.get_state() == vlc.State.Playing:
-                # btn.disabled = True
                 answer_player.disabled = False
                 answer_sound.pause()
 
         def reset_melody(btn: Button):
             if question_sound:
-                if question_sound.get_state() != vlc.State.Playing:
-                    question_player.disabled = False
-                stopper.disabled = False
+                if question_sound.get_state() == vlc.State.Playing:
+                    question_sound.pause()
+                question_player.disabled = False
                 question_sound.set_position(0)
             if answer_sound:
                 if answer_sound.get_state() != vlc.State.Playing:
-                    answer_player.disabled = False
-                stopper.disabled = False
+                    answer_sound.pause()
+                answer_player.disabled = False
                 answer_sound.set_position(0)
 
         def close_popup(btn: Button):
