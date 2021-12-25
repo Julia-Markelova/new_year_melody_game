@@ -1,5 +1,9 @@
 import json
+import traceback
+from json import JSONDecodeError
+from time import sleep
 from typing import Dict
+import serial
 
 import vlc
 from kivy.uix.boxlayout import BoxLayout
@@ -25,13 +29,10 @@ class BtnManager:
             round_name: str,
             button_number_to_command_mapping: Dict[int, str],
             task_btn: Button,
-            question_player_btn: Button,
-            path_to_file: str = 'file.json'):
+            question_player_btn: Button,):
 
-        with open(path_to_file, 'w'):
-            pass
+        self.serial_port = None
 
-        self.path_to_file = path_to_file
         self.answer_sound = answer_sound
         self.question_sound = question_sound
         self.task = task
@@ -43,19 +44,28 @@ class BtnManager:
         self._finish = True
 
     def manage_buttons(self):
-        # sleep(1)
+        self.serial_port = serial.Serial(port='/dev/ttyACM0')
+        self.serial_port.reset_input_buffer()
         while not self._finish:
             number = self.get_pressed_button_number()
             if number is not None and self.button_number_to_command_mapping.get(number, None) is not None:
                 self._finish = True
                 self.on_btn_pressed(self.button_number_to_command_mapping[number])
+        self.serial_port.close()
 
     def get_pressed_button_number(self):
-        with open(self.path_to_file, 'r') as file:
-            data = file.read()
-            if len(data) > 0:
-                data = json.loads(data)
-                return int(data['button'])
+        try:
+            for line in self.serial_port:
+                line = line.decode('utf-8')
+                line = line.replace('\'', '"')
+                line = json.loads(line)
+                number = int(line['button'])
+                return number
+        except JSONDecodeError as e:
+            print('JSON ERROR', e)
+        except Exception as e:
+            traceback.print_tb(e)
+            print(e)
 
     def stop(self):
         self._finish = True
@@ -127,3 +137,20 @@ class BtnManager:
 
         main_layout.add_widget(layout)
         return popup
+
+
+if __name__ == '__main__':
+    while True:
+        try:
+            with serial.Serial(port='/dev/ttyACM0') as s:
+                sleep(3)
+                s.reset_input_buffer()
+                for line in s:
+                    line = line.decode('utf-8')
+                    line = line.replace('\'', '"')
+                    line = json.loads(line)
+                    number = int(line['button'])
+                    print(number)
+        except Exception as e:
+            print(e)
+            pass
