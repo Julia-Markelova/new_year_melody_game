@@ -134,7 +134,7 @@ class RoundScreen(Screen):
         stopper = Button(text='Остановить воспроизведение', **melody_button_style)
         reset = Button(text='Перемотать мелодию в начало', **melody_button_style)
         answer = Button(text='Показать ответ', **melody_button_style)
-        rating_btn = Button(text='Засчитать рейтинг', **melody_button_style)
+        rating_btn = Button(text='Засчитать рейтинг', **melody_button_style, disabled=True)
         exit_btn = Button(text='Закрыть', **menu_button_style)
 
         question_player.bind(on_press=lambda x: play_sound(question_sound, x))
