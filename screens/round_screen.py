@@ -1,5 +1,6 @@
 from threading import Thread
 from time import sleep
+from typing import List
 
 import vlc
 from kivy.uix.boxlayout import BoxLayout
@@ -71,21 +72,28 @@ class RoundScreen(Screen):
         if task.path_to_answer is not None:
             answer_sound = vlc.MediaPlayer(task.path_to_answer)
 
+        def play_question(btn: Button):
+            if question_sound:
+                question_player.disabled = True
+                answer_player.disabled = True
+                btn_manager.start()
+                t = Thread(target=btn_manager.manage_buttons, daemon=True)
+                t.start()
+                question_sound.play()
+
         def play_sound(sound: vlc.MediaPlayer, btn: Button):
             if sound:
                 answer_player.disabled = True
                 question_player.disabled = True
-                btn_manager.start()
-                t = Thread(target=btn_manager.manage_buttons, daemon=True)
-                t.start()
                 sound.play()
 
         def stop_sound(btn: Button):
+            question_player.disabled = False
+            answer_player.disabled = False if task.path_to_answer is not None else True
+
             if question_sound and question_sound.can_pause() and question_sound.get_state() == vlc.State.Playing:
-                question_player.disabled = False
                 question_sound.pause()
             if answer_sound and answer_sound.can_pause() and answer_sound.get_state() == vlc.State.Playing:
-                answer_player.disabled = False
                 answer_sound.pause()
 
         def reset_melody(btn: Button):
@@ -109,6 +117,7 @@ class RoundScreen(Screen):
                 if answer_sound.get_state != vlc.State.Stopped:
                     answer_sound.stop()
             btn_manager.stop()
+            btn_manager.close()
             popup.dismiss()
 
         def show_answer(btn: Button):
@@ -134,10 +143,10 @@ class RoundScreen(Screen):
         stopper = Button(text='Остановить воспроизведение', **melody_button_style)
         reset = Button(text='Перемотать мелодию в начало', **melody_button_style)
         answer = Button(text='Показать ответ', **melody_button_style)
-        rating_btn = Button(text='Засчитать рейтинг', **melody_button_style, disabled=True)
+        rating_btn = Button(text='Засчитать рейтинг', **melody_button_style)
         exit_btn = Button(text='Закрыть', **menu_button_style)
 
-        question_player.bind(on_press=lambda x: play_sound(question_sound, x))
+        question_player.bind(on_press=play_question)
         answer_player.bind(on_press=lambda x: play_sound(answer_sound, x))
         stopper.bind(on_press=stop_sound)
         exit_btn.bind(on_press=close_popup)
@@ -155,7 +164,10 @@ class RoundScreen(Screen):
 
         main_layout.add_widget(layout)
 
-        btn_manager = self._create_button_manager(answer_sound, question_sound, instance, task, question_player)
+        btn_manager = self._create_button_manager(
+            answer_sound, question_sound, task,
+            buttons_to_disable=[instance, rating_btn],
+            buttons_to_enable=[question_player, stopper, reset] + ([answer_player] if task.path_to_answer is not None else []))
         return popup
 
     def _teams_popup(self, point_count: int, task_btn: Button, instance: Button):
@@ -182,7 +194,7 @@ class RoundScreen(Screen):
                 btn.disabled = True
 
         buttons = []
-        for team in self.manager.teams:
+        for _, team in self.manager.teams.items():
             button = Button(text=team, **melody_button_style)
             button.bind(on_press=_add_rating)
             buttons.append(button)
@@ -197,15 +209,22 @@ class RoundScreen(Screen):
         exit_btn.bind(on_press=popup.dismiss)
         popup.open()
 
-    def _create_button_manager(self, answer_sound, question_sound, task_btn, task, question_player):
+    def _create_button_manager(
+            self,
+            answer_sound: vlc.MediaPlayer,
+            question_sound: vlc.MediaPlayer,
+            task: Task,
+            buttons_to_disable: List[Button],
+            buttons_to_enable: List[Button],
+):
         btn_manager = BtnManager(
             answer_sound,
             question_sound,
             task,
             self.manager.rating,
             self.round.get_name(),
-            self.manager.button_number_to_command_name_mapping,
-            task_btn,
-            question_player
+            self.manager.teams,
+            buttons_to_disable,
+            buttons_to_enable
         )
         return btn_manager
