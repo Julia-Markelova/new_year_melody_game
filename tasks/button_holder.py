@@ -1,8 +1,8 @@
 import json
-import traceback
 from json import JSONDecodeError
-from time import sleep
 from typing import Dict
+from typing import List
+
 import serial
 
 import vlc
@@ -28,29 +28,33 @@ class BtnManager:
             rating: Dict[str, Dict[str, int]],
             round_name: str,
             button_number_to_command_mapping: Dict[int, str],
-            task_btn: Button,
-            question_player_btn: Button,):
+            buttons_to_disable: List[Button],
+            buttons_to_enable: List[Button],
+    ):
 
-        self.serial_port = None
+        self.serial_port = serial.Serial(port='/dev/ttyACM0')
 
         self.answer_sound = answer_sound
         self.question_sound = question_sound
         self.task = task
         self.rating = rating
         self.round_name = round_name
-        self.task_btn = task_btn
+        self.buttons_to_disable = buttons_to_disable
+        self.buttons_to_enable = buttons_to_enable
         self.button_number_to_command_mapping = button_number_to_command_mapping
-        self.question_player_btn = question_player_btn
         self._finish = True
 
     def manage_buttons(self):
-        self.serial_port = serial.Serial(port='/dev/ttyACM0')
+        if not self.serial_port.is_open:
+            self.serial_port.open()
         self.serial_port.reset_input_buffer()
         while not self._finish:
             number = self.get_pressed_button_number()
             if number is not None and self.button_number_to_command_mapping.get(number, None) is not None:
                 self._finish = True
                 self.on_btn_pressed(self.button_number_to_command_mapping[number])
+
+    def close(self):
         self.serial_port.close()
 
     def get_pressed_button_number(self):
@@ -64,8 +68,9 @@ class BtnManager:
         except JSONDecodeError as e:
             print('JSON ERROR', e)
         except Exception as e:
-            traceback.print_tb(e)
+            # traceback.print_tb(e)
             print(e)
+            self.serial_port.close()
 
     def stop(self):
         self._finish = True
@@ -88,7 +93,8 @@ class BtnManager:
 
         def close_popup(btn: Button):
             self.stop()
-            self.question_player_btn.disabled = False
+            for button in self.buttons_to_enable:
+                button.disabled = False
             popup.dismiss()
 
         def wrong_answer(btn: Button):
@@ -98,8 +104,9 @@ class BtnManager:
 
         def add_rating(btn: Button):
             btn.disabled = True
-            self.task_btn.disabled = True
             wrong_answer_btn.disabled = True
+            for button in self.buttons_to_disable:
+                button.disabled = True
 
             if self.rating.get(command_name, None) is not None:
                 if self.rating[command_name].get(self.round_name) is None:
@@ -112,12 +119,10 @@ class BtnManager:
         main_layout.padding = 10
 
         label = Label(
-            text=f'Категория "{self.task.category_name}"\n'
-                 f'Количество очков : {self.task.point_count}\n\n'
-                 f'Отвечает команда {command_name}',
+            text=f'{self.task.category_name}-{self.task.point_count}\n\nОтвечает команда "{command_name}"',
             **milk_header_style)
         main_layout.add_widget(label)
-        popup = Popup(content=main_layout, auto_dismiss=False, title=f'Ответ команды {command_name}')
+        popup = Popup(content=main_layout, auto_dismiss=False, title=f'Ответ команды "{command_name}"')
 
         layout = BoxLayout(orientation='vertical')
         layout.spacing = 10
@@ -137,20 +142,3 @@ class BtnManager:
 
         main_layout.add_widget(layout)
         return popup
-
-
-if __name__ == '__main__':
-    while True:
-        try:
-            with serial.Serial(port='/dev/ttyACM0') as s:
-                sleep(3)
-                s.reset_input_buffer()
-                for line in s:
-                    line = line.decode('utf-8')
-                    line = line.replace('\'', '"')
-                    line = json.loads(line)
-                    number = int(line['button'])
-                    print(number)
-        except Exception as e:
-            print(e)
-            pass
