@@ -13,6 +13,7 @@ from config.styles import melody_button_style
 from config.styles import menu_button_style
 from config.styles import milk_header_style_20_sp
 from config.styles import rating_button_style
+from config.styles import text_input_style
 from config.styles import total_rating_button_style
 from config.styles import round_category_button_style
 
@@ -56,51 +57,52 @@ class MainScreen(Screen):
         self._init_teams()
         def save_commands(instance: Button):
             self.manager.teams.clear()
-            for text in inputs:
-                if text.text is not None and text.text != '':
-                    text.disabled = True
-                    self.manager.teams.add(text.text)
+            for text_input in inputs:
+                if text_input.text is not None and text_input.text != '':
+                    text_input.disabled = True
+                    self.manager.teams[int(text_input.hint_text.split(' ')[1])] = text_input.text
                     self.round1_btn.disabled = False
                     self.round2_btn.disabled = False
                     self.round3_btn.disabled = False
                     self.rating_btn.disabled = False
+                text_input.hint_text = ''
             self._init_rating()
 
         main_layout = BoxLayout(orientation='vertical')
         main_layout.spacing = 10
         main_layout.padding = 10
         label = Label(text='Задайте названия команд: \n\n'
-                           '    -максимальное количество команд = 4; \n'
+                           '    -максимальное количество команд = 5; \n'
                            '    -для сохранения названия нажмите "Сохранить"; \n'
-                           '    -если у Вас число команд меньше 4, то оставьте остальные поля пустыми.',
+                           '    -если у Вас число команд меньше 5, то оставьте остальные поля пустыми.',
                       **milk_header_style_20_sp,
                       size_hint=(1, 0.2),
                       size=(100, 30), )
 
         teams_layout = GridLayout()
         teams_layout.cols = 1
-        teams_layout.rows = 5
+        teams_layout.rows = 6
         teams_layout.spacing = 10
         teams_layout.padding = 20
         inputs: List[TextInput] = []
-        teams = list(self.manager.teams)
-        disabled = len(teams) > 0
-        for i in range(teams_layout.rows - 1):
-            try:
-                text = teams[i]
-            except IndexError:
-                text = ''
-            text_input = TextInput(
-                text=text,
-                multiline=False,
-                size_hint=(0.8, 0.2),
-                size=(100, 20),
-                font_size='25sp',
-                halign='center',
-                disabled=disabled
-            )
-            inputs.append(text_input)
-            teams_layout.add_widget(text_input)
+
+        disabled = len(self.manager.teams) > 0
+        input1 = TextInput(hint_text=self.manager.teams.get(1, 'Команда 1' if not disabled else ''), **text_input_style, disabled=disabled)
+        input2 = TextInput(hint_text=self.manager.teams.get(2, 'Команда 2' if not disabled else ''), **text_input_style, disabled=disabled)
+        input3 = TextInput(hint_text=self.manager.teams.get(3, 'Команда 3' if not disabled else ''), **text_input_style, disabled=disabled)
+        input4 = TextInput(hint_text=self.manager.teams.get(4, 'Команда 4' if not disabled else ''), **text_input_style, disabled=disabled)
+        input5 = TextInput(hint_text=self.manager.teams.get(5, 'Команда 5' if not disabled else ''), **text_input_style, disabled=disabled)
+        inputs.append(input1)
+        inputs.append(input2)
+        inputs.append(input3)
+        inputs.append(input4)
+        inputs.append(input5)
+        teams_layout.add_widget(input1)
+        teams_layout.add_widget(input2)
+        teams_layout.add_widget(input3)
+        teams_layout.add_widget(input4)
+        teams_layout.add_widget(input5)
+
         save_button = Button(text='Сохранить', **melody_button_style, size_hint=(1, 0.2), size=(100, 20), disabled=disabled)
         save_button.bind(on_press=save_commands)
         teams_layout.add_widget(save_button)
@@ -166,8 +168,12 @@ class MainScreen(Screen):
             'Раунд I': 0,
             'Раунд II': 0,
             'Раунд III': 0,
-        } for team in self.manager.teams}
+        } for _, team in self.manager.teams.items()}
 
     def _init_teams(self):
         if not hasattr(self.manager, 'teams') or self.manager.teams is None:
-            self.manager.teams = set()
+            self.manager.teams = {}
+
+
+# todo сохранение игры
+# todo правила
