@@ -183,10 +183,11 @@ class MainScreen(Screen):
         for command in commands:
             stats: Stats = self.manager.stats[command]
             frequency = round(stats.right_answers_count / stats.clicks_count, 3) if stats.clicks_count != 0 else 0
+            min_time_for_answer = stats.min_time_for_answer if stats.min_time_for_answer is not None else '-'
             rating_layout.add_widget(Button(**round_category_button_style, text=command))
             rating_layout.add_widget(Button(**rating_button_style, text=str(stats.clicks_count)))
             rating_layout.add_widget(Button(**rating_button_style, text=str(stats.right_answers_count)))
-            rating_layout.add_widget(Button(**rating_button_style, text=str(stats.min_time_for_answer)))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(min_time_for_answer)))
             rating_layout.add_widget(Button(**rating_button_style, text=str(frequency)))
 
         close_button = Button(text='Закрыть', **menu_button_style, size_hint=(1, 0.1), size=(100, 20), )

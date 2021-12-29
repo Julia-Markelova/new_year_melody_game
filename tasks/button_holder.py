@@ -115,8 +115,9 @@ class BtnManager:
 
         def add_rating(btn: Button):
             self.stats[command_name].right_answers_count += 1
-            self.stats[command_name].min_time_for_answer = min(answer_time,
-                                                               self.stats[command_name].min_time_for_answer)
+            self.stats[command_name].min_time_for_answer = \
+                min(answer_time, self.stats[command_name].min_time_for_answer) \
+                if self.stats[command_name].min_time_for_answer is not None else answer_time
             btn.disabled = True
             wrong_answer_btn.disabled = True
             for button in self.buttons_to_disable:

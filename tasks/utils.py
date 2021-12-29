@@ -5,4 +5,4 @@ from dataclasses import dataclass
 class Stats:
     clicks_count: int = 0
     right_answers_count: int = 0
-    min_time_for_answer: int = 1000000
+    min_time_for_answer: int = None
