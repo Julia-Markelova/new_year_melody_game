@@ -92,15 +92,3 @@ text_input_style = {
     'font_size': '64sp',
     'halign': 'center',
 }
-
-popup_btn_style = {
-    'font_size': '64sp',
-    'background_color': colors.popup_background,
-    'background_normal': '',
-    'color': colors.theme_1_white,
-    'border': colors.theme_2_blue,
-    'disabled': True,
-    'background_disabled_normal': '',
-    'disabled_color': colors.theme_1_white,
-    'bold': True,
-}

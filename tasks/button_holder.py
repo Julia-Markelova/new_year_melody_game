@@ -7,15 +7,18 @@ from typing import List
 import serial
 
 import vlc
+from kivy.graphics.context_instructions import Color
+from kivy.graphics.vertex_instructions import Rectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
+from config.colors import popup_background
 from config.styles import melody_button_style
 from config.styles import menu_button_style
-from config.styles import popup_btn_style
+from config.styles import milk_header_style
 from tasks.categories import Task
 from tasks.utils import Stats
 
@@ -129,9 +132,9 @@ class BtnManager:
         main_layout.spacing = 10
         main_layout.padding = 10
 
-        label = Button(
+        label = Label(
             text=f'{self.task.category_name}-{self.task.point_count}\n\nОтвечает команда "{command_name}"',
-            **popup_btn_style)
+            **milk_header_style)
         main_layout.add_widget(label)
         popup = Popup(content=main_layout, auto_dismiss=False, title=f'Ответ команды "{command_name}"')
 
@@ -152,4 +155,15 @@ class BtnManager:
         layout.add_widget(exit_btn)
 
         main_layout.add_widget(layout)
+
+        with main_layout.canvas.before:
+            Color(*popup_background)
+            main_layout.rect = Rectangle(size=main_layout.size, pos=main_layout.pos)
+
+        def update_rect(instance, value):
+            instance.rect.pos = instance.pos
+            instance.rect.size = instance.size
+
+        # listen to size and position changes
+        main_layout.bind(pos=update_rect, size=update_rect)
         return popup
