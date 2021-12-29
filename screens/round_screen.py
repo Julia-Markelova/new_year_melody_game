@@ -83,6 +83,7 @@ class RoundScreen(Screen):
 
         def play_sound(sound: vlc.MediaPlayer, btn: Button):
             if sound:
+                btn_manager.stop()
                 answer_player.disabled = True
                 question_player.disabled = True
                 sound.play()
@@ -222,6 +223,7 @@ class RoundScreen(Screen):
             question_sound,
             task,
             self.manager.rating,
+            self.manager.stats,
             self.round.get_name(),
             self.manager.teams,
             buttons_to_disable,

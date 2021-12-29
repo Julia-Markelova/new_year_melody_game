@@ -16,6 +16,7 @@ from config.styles import rating_button_style
 from config.styles import text_input_style
 from config.styles import total_rating_button_style
 from config.styles import round_category_button_style
+from tasks.utils import Stats
 
 
 class MainScreen(Screen):
@@ -27,6 +28,7 @@ class MainScreen(Screen):
         self.round2_btn = Button(text='Раунд II', **menu_button_style, disabled=True)
         self.round3_btn = Button(text='Раунд III', **menu_button_style, disabled=True)
         self.rating_btn = Button(text='Рейтинг', **menu_button_style, disabled=True)
+        self.stats_btn = Button(text='Статистика игры', **menu_button_style, disabled=True)
         self.main_screen()
 
     def main_screen(self):
@@ -44,12 +46,14 @@ class MainScreen(Screen):
         self.round2_btn.bind(on_press=self.play_round)
         self.round3_btn.bind(on_press=self.play_round)
         self.rating_btn.bind(on_press=self.show_rating)
+        self.stats_btn.bind(on_press=self.show_stats)
         box_layout.add_widget(self.users_btn)
-        box_layout.add_widget(self.rules_btn)
+        # box_layout.add_widget(self.rules_btn)
         box_layout.add_widget(self.round1_btn)
         box_layout.add_widget(self.round2_btn)
         box_layout.add_widget(self.round3_btn)
         box_layout.add_widget(self.rating_btn)
+        box_layout.add_widget(self.stats_btn)
         layout.add_widget(box_layout)
         self.add_widget(layout)
 
@@ -65,8 +69,10 @@ class MainScreen(Screen):
                     self.round2_btn.disabled = False
                     self.round3_btn.disabled = False
                     self.rating_btn.disabled = False
+                    self.stats_btn.disabled = False
                 text_input.hint_text = ''
             self._init_rating()
+            self._init_stats()
 
         main_layout = BoxLayout(orientation='vertical')
         main_layout.spacing = 10
@@ -159,6 +165,37 @@ class MainScreen(Screen):
         main_layout.add_widget(close_button)
         popup.open()
 
+    def show_stats(self, btn: Button):
+        self._init_teams()
+        main_layout = BoxLayout(orientation='vertical')
+        rating_layout = GridLayout()
+        rating_layout.spacing = 10
+        rating_layout.padding = 10
+        rating_layout.cols = 5
+        # fill header
+        rating_layout.add_widget(Button(**round_category_button_style, text='Команда/Показатель'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Количество\nнажатий'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Количество\nправильных\nответов'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Минимальное\nвремя\nответа, сек'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Частота\nправильных\nответов'))
+        commands = list(sorted(self.manager.rating))
+
+        for command in commands:
+            stats: Stats = self.manager.stats[command]
+            frequency = round(stats.right_answers_count / stats.clicks_count, 3) if stats.clicks_count != 0 else 0
+            rating_layout.add_widget(Button(**round_category_button_style, text=command))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(stats.clicks_count)))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(stats.right_answers_count)))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(stats.min_time_for_answer)))
+            rating_layout.add_widget(Button(**rating_button_style, text=str(frequency)))
+
+        close_button = Button(text='Закрыть', **menu_button_style, size_hint=(1, 0.1), size=(100, 20), )
+        popup = Popup(title='Команды', content=main_layout, auto_dismiss=False)
+        close_button.bind(on_press=popup.dismiss)
+        main_layout.add_widget(rating_layout)
+        main_layout.add_widget(close_button)
+        popup.open()
+
     def _count_total_rating(self, command: str) -> int:
         rounds = self.manager.rating[command]
         return sum([rounds[value] for value in rounds])
@@ -173,6 +210,12 @@ class MainScreen(Screen):
     def _init_teams(self):
         if not hasattr(self.manager, 'teams') or self.manager.teams is None:
             self.manager.teams = {}
+
+    def _init_stats(self):
+        self.manager.stats = {
+            team: Stats()
+            for _, team in self.manager.teams.items()
+        }
 
 
 # todo сохранение игры

@@ -1,4 +1,5 @@
 import json
+import time
 from json import JSONDecodeError
 from typing import Dict
 from typing import List
@@ -14,9 +15,9 @@ from kivy.uix.popup import Popup
 
 from config.styles import melody_button_style
 from config.styles import menu_button_style
-from config.styles import milk_header_style
 from config.styles import popup_btn_style
 from tasks.categories import Task
+from tasks.utils import Stats
 
 
 class BtnManager:
@@ -27,6 +28,7 @@ class BtnManager:
             question_sound: vlc.MediaPlayer,
             task: Task,
             rating: Dict[str, Dict[str, int]],
+            stats: Dict[str, Stats],
             round_name: str,
             button_number_to_command_mapping: Dict[int, str],
             buttons_to_disable: List[Button],
@@ -39,11 +41,13 @@ class BtnManager:
         self.question_sound = question_sound
         self.task = task
         self.rating = rating
+        self.stats = stats
         self.round_name = round_name
         self.buttons_to_disable = buttons_to_disable
         self.buttons_to_enable = buttons_to_enable
         self.button_number_to_command_mapping = button_number_to_command_mapping
         self._finish = True
+        self._start_time = None
 
     def manage_buttons(self):
         if not self.serial_port.is_open:
@@ -92,6 +96,9 @@ class BtnManager:
 
     def configure_answer_popup(self, command_name: str):
 
+        self.stats[command_name].clicks_count += 1
+        answer_time = round(time.time() - self._start_time, 3)
+
         def close_popup(btn: Button):
             self.stop()
             for button in self.buttons_to_enable:
@@ -104,6 +111,9 @@ class BtnManager:
             # self.manage_buttons()
 
         def add_rating(btn: Button):
+            self.stats[command_name].right_answers_count += 1
+            self.stats[command_name].min_time_for_answer = min(answer_time,
+                                                               self.stats[command_name].min_time_for_answer)
             btn.disabled = True
             wrong_answer_btn.disabled = True
             for button in self.buttons_to_disable:
