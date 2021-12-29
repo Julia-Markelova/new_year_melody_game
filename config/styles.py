@@ -83,3 +83,24 @@ melody_button_style = {
     # 'background_disabled_normal': '',
     # 'disabled_color': colors.theme_2_duke_blue,
 }
+
+
+text_input_style = {
+    'multiline': False,
+    'size_hint': (0.8, 0.2),
+    'size': (100, 20),
+    'font_size': '64sp',
+    'halign': 'center',
+}
+
+popup_btn_style = {
+    'font_size': '64sp',
+    'background_color': colors.popup_background,
+    'background_normal': '',
+    'color': colors.theme_1_white,
+    'border': colors.theme_2_blue,
+    'disabled': True,
+    'background_disabled_normal': '',
+    'disabled_color': colors.theme_1_white,
+    'bold': True,
+}

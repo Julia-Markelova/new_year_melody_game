@@ -15,6 +15,7 @@ from kivy.uix.popup import Popup
 from config.styles import melody_button_style
 from config.styles import menu_button_style
 from config.styles import milk_header_style
+from config.styles import popup_btn_style
 from tasks.categories import Task
 
 
@@ -118,9 +119,9 @@ class BtnManager:
         main_layout.spacing = 10
         main_layout.padding = 10
 
-        label = Label(
+        label = Button(
             text=f'{self.task.category_name}-{self.task.point_count}\n\nОтвечает команда "{command_name}"',
-            **milk_header_style)
+            **popup_btn_style)
         main_layout.add_widget(label)
         popup = Popup(content=main_layout, auto_dismiss=False, title=f'Ответ команды "{command_name}"')
 
