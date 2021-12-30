@@ -56,6 +56,8 @@ class BtnManager:
         if not self.serial_port.is_open:
             self.serial_port.open()
         self.serial_port.reset_input_buffer()
+        if self._start_time is None:
+            self._start_time = time.time()
         while not self._finish:
             number = self.get_pressed_button_number()
             if number is not None and self.button_number_to_command_mapping.get(number, None) is not None:
