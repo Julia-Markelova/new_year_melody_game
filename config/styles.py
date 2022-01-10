@@ -1,14 +1,14 @@
 from config import colors
 
 menu_button_style = {
-    'font_size': '32sp',
+    'font_size': '64sp',   # 64
     'background_color': colors.theme_2_blue,
     'background_normal': '',
     'color': colors.theme_2_milk,
 }
 
 round_task_button_style = {
-    'font_size': '50sp',
+    'font_size': '72sp',
     'background_color': colors.theme_2_duke_blue,
     'background_normal': '',
     'color': colors.theme_2_milk,
@@ -18,7 +18,7 @@ round_task_button_style = {
 }
 
 total_rating_button_style = {
-    'font_size': '50sp',
+    'font_size': '72sp',
     'background_color': colors.theme_2_duke_blue,
     'background_normal': '',
     'color': colors.theme_2_milk,
@@ -27,7 +27,7 @@ total_rating_button_style = {
 }
 
 rating_button_style = {
-    'font_size': '20sp',
+    'font_size': '64sp',
     'background_color': colors.theme_2_milk,
     'background_normal': '',
     'color': colors.theme_2_coffee,
@@ -39,7 +39,7 @@ rating_button_style = {
 }
 
 round_category_button_style = {
-    'font_size': '20sp',
+    'font_size': '48sp',
     'background_color': colors.theme_2_light_blue,
     'background_normal': '',
     'color': colors.theme_2_coffee,
@@ -51,7 +51,7 @@ round_category_button_style = {
 }
 
 header_style = {
-    'font_size': '42sp',
+    'font_size': '90sp',   # 90sp
     'color': colors.theme_2_coffee,
     'bold': True,
     'halign': 'center',
@@ -59,7 +59,7 @@ header_style = {
 }
 
 milk_header_style = {
-    'font_size': '42sp',
+    'font_size': '64sp',
     'color': colors.theme_2_milk,
     'bold': True,
     'halign': 'center',
@@ -67,7 +67,7 @@ milk_header_style = {
 }
 
 milk_header_style_20_sp = {
-    'font_size': '20sp',
+    'font_size': '64sp',
     'color': colors.theme_2_milk,
     'bold': True,
     'halign': 'center',
@@ -75,7 +75,7 @@ milk_header_style_20_sp = {
 }
 
 melody_button_style = {
-    'font_size': '32sp',
+    'font_size': '64sp',
     'background_color': colors.theme_2_duke_blue,
     'background_normal': '',
     'color': colors.theme_2_milk,

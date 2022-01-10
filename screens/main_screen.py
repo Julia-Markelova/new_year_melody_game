@@ -77,10 +77,7 @@ class MainScreen(Screen):
         main_layout = BoxLayout(orientation='vertical')
         main_layout.spacing = 10
         main_layout.padding = 10
-        label = Label(text='Задайте названия команд: \n\n'
-                           '    -максимальное количество команд = 5; \n'
-                           '    -для сохранения названия нажмите "Сохранить"; \n'
-                           '    -если у Вас число команд меньше 5, то оставьте остальные поля пустыми.',
+        label = Label(text='Задайте названия команд',
                       **milk_header_style_20_sp,
                       size_hint=(1, 0.2),
                       size=(100, 30), )
@@ -143,7 +140,7 @@ class MainScreen(Screen):
         rating_layout.padding = 10
         rating_layout.cols = 5
         # fill header
-        rating_layout.add_widget(Button(**round_category_button_style, text='Команда/Раунд'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Команда/\nРаунд'))
         rating_layout.add_widget(Button(**round_category_button_style, text='Раунд I'))
         rating_layout.add_widget(Button(**round_category_button_style, text='Раунд II'))
         rating_layout.add_widget(Button(**round_category_button_style, text='Раунд III'))
@@ -173,7 +170,7 @@ class MainScreen(Screen):
         rating_layout.padding = 10
         rating_layout.cols = 5
         # fill header
-        rating_layout.add_widget(Button(**round_category_button_style, text='Команда/Показатель'))
+        rating_layout.add_widget(Button(**round_category_button_style, text='Команда/\nПоказатель'))
         rating_layout.add_widget(Button(**round_category_button_style, text='Количество\nнажатий'))
         rating_layout.add_widget(Button(**round_category_button_style, text='Количество\nправильных\nответов'))
         rating_layout.add_widget(Button(**round_category_button_style, text='Минимальное\nвремя\nответа, сек'))
