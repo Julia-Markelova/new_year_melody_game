@@ -31,5 +31,9 @@
 # Статистика игры
 ![image](https://github.com/Julia-Markelova/new_year_melody_game/assets/35561439/2f8fa433-b8a3-4e71-8663-62024fbd8d99)
 
+# Модалка при нажатии команды на кнопку (доступно только если подключены кнопки)
+![image](https://github.com/Julia-Markelova/new_year_melody_game/assets/35561439/74ab4b6a-4ac5-4650-83fd-b4fa05534ccb)
+
+
 
 
