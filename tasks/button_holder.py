@@ -5,6 +5,7 @@ from typing import Dict
 from typing import List
 
 import serial
+import logging
 
 import vlc
 from kivy.graphics.context_instructions import Color
@@ -23,6 +24,9 @@ from tasks.categories import Task
 from tasks.utils import Stats
 
 
+logger = logging.getLogger(__name__)
+
+
 class BtnManager:
 
     def __init__(
@@ -37,8 +41,11 @@ class BtnManager:
             buttons_to_disable: List[Button],
             buttons_to_enable: List[Button],
     ):
-
-        self.serial_port = serial.Serial(port='/dev/ttyACM0')
+        try:
+            self.serial_port = serial.Serial(port='/dev/ttyACM0')
+        except Exception as e:
+            logger.warning(f"Failed to open serial port: {e}. Will start without it")
+            self.serial_port = None
 
         self.answer_sound = answer_sound
         self.question_sound = question_sound
@@ -53,11 +60,13 @@ class BtnManager:
         self._start_time = None
 
     def manage_buttons(self):
+        if self._start_time is None:
+            self._start_time = time.time()
+        if self.serial_port is None:
+            return
         if not self.serial_port.is_open:
             self.serial_port.open()
         self.serial_port.reset_input_buffer()
-        if self._start_time is None:
-            self._start_time = time.time()
         while not self._finish:
             number = self.get_pressed_button_number()
             if number is not None and self.button_number_to_command_mapping.get(number, None) is not None:
@@ -65,7 +74,8 @@ class BtnManager:
                 self.on_btn_pressed(self.button_number_to_command_mapping[number])
 
     def close(self):
-        self.serial_port.close()
+        if self.serial_port:
+            self.serial_port.close()
 
     def get_pressed_button_number(self):
         try:
@@ -78,8 +88,7 @@ class BtnManager:
         except JSONDecodeError as e:
             print('JSON ERROR', e)
         except Exception as e:
-            # traceback.print_tb(e)
-            print(e)
+            logger.warning(f"Error during parsing button number: {e}")
             self.serial_port.close()
 
     def stop(self):

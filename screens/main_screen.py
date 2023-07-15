@@ -34,7 +34,7 @@ class MainScreen(Screen):
     def main_screen(self):
         layout = GridLayout()
         layout.rows = 2
-        label = Label(text='Новогодний музыкальный конкурс', **header_style)
+        label = Label(text='Музыкальный конкурс', **header_style)
 
         layout.add_widget(label)
         box_layout = BoxLayout(orientation='vertical')

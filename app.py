@@ -12,6 +12,7 @@ from tasks.categories import Round
 from tasks.categories import configure_rounds
 
 Config.set('kivy', 'exit_on_escape', '0')
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 
 class NewYearGameApp(App):
